@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<title>{Title}{block:PermalinkPage}{block:PostSummary}: {PostSummary}{/block:PostSummary}{/block:PermalinkPage}{block:TagPage} / #{Tag}{/block:TagPage}{block:SearchPage} | search: {SearchQuery}{/block:SearchPage}</title>
+<link rel="shortcut icon" href="{Favicon}"/>
+<link rel="alternate" type="application/rss+xml" href="{RSS}"/>
+{block:Description}<meta name="description" content="{MetaDescription}"/>{/block:Description}
+{NewPostStyles}
+
+{block:Options}
+<meta name="image:Icon" content=""/>
+<meta name="text:Blog Title" content=""/>
+<meta name="text:Bio Name" content=""/>
+<meta name="text:Location" content=""/>
+{/block:Options}
+
+<style>
+/* =========================================================
+   Original theme built for reuse across multiple blogs.
+   Personal content lives entirely in the Customize panel
+   options above — nothing personal is hardcoded here.
+   ========================================================= */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+* { scrollbar-width: thin; scrollbar-color: #613d12 #f5f5f0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --bg: #f5f5f0;
+  --text: #2a2a2a;
+  --text-light: #666;
+  --chrome: rgba(44,44,44,0.68);
+  --accent: #613d12;
+  --accent-dark: #4a2f0d;
+  --border: #ddd;
+  --post-width: 500px;
+  --header-h: 0px;
+}
+
+html, body {
+  height: 100%;
+  font-family: "Times New Roman", Times, Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+a { color: var(--accent); text-decoration: none; transition: opacity .2s ease; }
+a:hover { opacity: .65; }
+button { font: inherit; background: none; border: none; cursor: pointer; color: inherit; }
+input { font: inherit; border: none; outline: none; background: transparent; }
+img { max-width: 100%; display: block; }
+
+.wrap { width: 100%; max-width: var(--post-width); margin: 0 auto; padding: 0 1.5rem; }
+
+/* ---------- header ----------
+   Normal document flow, not sticky — after two attempts at sticky behaving
+   inconsistently against Tumblr's own injected UI (which sits outside this
+   theme's control), scrolling normally is the reliable choice. */
+.topbar {
+  background: var(--bg);
+  padding-top: 3.5rem;
+  padding-bottom: 1.5rem;
+  text-align: center;
+}
+.header-avatar {
+  width: 62px; height: 62px; border-radius: 50%; object-fit: cover;
+  margin: 0 auto 1.1rem;
+}
+.blog-title { font-size: 22px; letter-spacing: 2.5px; color: var(--chrome); }
+.blog-title:hover { opacity: .7; }
+
+.identity-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .35s ease, opacity .3s ease, margin .35s ease;
+  text-align: center;
+}
+.identity-panel.open { max-height: 220px; opacity: 1; margin-top: 1.1rem; }
+.identity-name { font-size: 14px; color: var(--chrome); }
+.identity-location { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 5px; font-size: 12px; color: var(--chrome); }
+.identity-location svg { width: 11px; height: 11px; fill: var(--accent); flex-shrink: 0; }
+
+.icon-row { display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 18px; margin-top: 1.75rem; }
+.icon-row a { display: flex; align-items: center; justify-content: center; width: 19px; height: 19px; color: var(--accent); flex-shrink: 0; }
+.icon-row svg { width: 100%; height: 100%; fill: currentColor; display: block; }
+@media (max-width: 380px) { .icon-row { gap: 12px; } .icon-row a { width: 17px; height: 17px; } }
+
+.activity-widget { margin-top: 1.75rem; font-size: 13px; line-height: 1.8; width: fit-content; max-width: 100%; margin-left: auto; margin-right: auto; }
+.activity-row { display: flex; align-items: baseline; gap: .35em; margin-top: .3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.activity-row:first-child { margin-top: 0; }
+.activity-label { color: var(--chrome); }
+.activity-value { color: var(--accent); text-decoration: none; }
+.activity-value:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; opacity: 1; }
+
+/* search — no box, no border, just plain text that becomes a live input,
+   revealed by the search icon rather than always sitting on the page */
+.search-panel { overflow: hidden; max-height: 0; opacity: 0; transition: max-height .3s ease, opacity .25s ease, margin .3s ease; }
+.search-panel.open { max-height: 240px; opacity: 1; margin-top: 1.5rem; }
+.search-panel input {
+  display: block; width: 100%; text-align: center;
+  font-family: inherit; font-size: 14px; color: var(--text);
+  padding: .4rem 0; border-bottom: 1px solid transparent;
+}
+.search-panel input::placeholder { color: var(--text-light); font-style: italic; }
+.search-panel input:focus { border-bottom-color: var(--accent); }
+.search-results { max-height: 0; overflow-y: auto; transition: max-height .25s ease; text-align: center; }
+.search-results.open { max-height: 200px; margin-top: 8px; }
+.search-results a { display: block; padding: 7px 4px; font-size: 12px; color: var(--text); }
+.search-results a:hover { color: var(--accent); opacity: 1; }
+
+/* ---------- posts ---------- */
+.posts { padding-top: 1rem; }
+article.post { margin-bottom: 5rem; }
+
+.reblog-header { display: flex; align-items: center; gap: .5rem; margin-bottom: 1.25rem; }
+.reblog-header img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+.reblog-header .user { font-weight: bold; color: var(--text); }
+.reblog-header .user:hover { opacity: .65; }
+
+.caption h1 { font-size: 1.3em; font-weight: bold; margin: 1.25rem 0 .6rem; }
+.caption p { margin: 1.25rem 0; }
+.caption blockquote { border-left: 1px solid var(--border); padding-left: 1.1rem; margin: 1.25rem 0 1.25rem 1.1rem; }
+.caption a { border-bottom: 1px solid var(--accent); padding-bottom: 1px; }
+.caption ul, .caption ol { padding-left: 1.5rem; margin: 1.25rem 0; }
+
+figure { margin-bottom: 5px; }
+.npf-photos { border-radius: 4px; overflow: hidden; margin-bottom: 1.25rem; }
+.npf_row { display: flex; gap: 5px; margin-bottom: 5px; }
+.npf_row:last-child { margin-bottom: 0; }
+.npf_col { flex: 1; min-width: 0; }
+/* the real fix for oversized mobile images: cap height to the viewport,
+   don't let a tall portrait photo render at its full native pixel height */
+.npf_col img { width: 100%; height: auto; max-height: 65vh; object-fit: cover; display: block; }
+
+.quote-post blockquote { font-size: 1.25em; line-height: 1.5; border: none; padding: 0; margin: 1.25rem 0; font-style: italic; }
+.quote-post .source { margin-top: .85rem; color: var(--chrome); font-size: .9em; }
+
+.type-label { font-size: .72em; letter-spacing: .08em; color: var(--text-light); text-transform: uppercase; margin-bottom: .6rem; display: block; }
+
+.ask-box { border-left: 2px solid var(--accent); padding-left: 1rem; margin-bottom: 1rem; }
+.ask-box .asker { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; color: var(--chrome); font-size: .9em; }
+.ask-box .asker img { width: 20px; height: 20px; border-radius: 50%; }
+
+/* post footer — deliberately plain-text, not icon-button based */
+footer.post-footer {
+  margin-top: 1.25rem; padding-top: .75rem; border-top: 1px solid var(--border);
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem;
+  font-size: .82em; color: var(--text-light);
+}
+footer.post-footer a { color: var(--text-light); }
+footer.post-footer a:hover { color: var(--accent); opacity: 1; }
+.post-tags { width: 100%; }
+.post-tags a::after { content: ", "; color: var(--text-light); }
+.post-tags a:last-child::after { content: ""; }
+
+/* notes — flat link, no avatar list */
+.notes-toggle { display: block; margin-top: .5rem; font-size: .82em; color: var(--text-light); }
+.notes-toggle:hover { color: var(--accent); opacity: 1; }
+.notes-list { margin-top: 1rem; font-size: .85em; }
+.notes-list li { padding: .35rem 0; color: var(--text-light); }
+.notes-list img { width: 16px; height: 16px; border-radius: 50%; vertical-align: middle; margin-right: .4rem; }
+
+/* pagination — plain text links, not icon buttons */
+.pagi { display: flex; align-items: center; justify-content: space-between; margin-top: 3rem; font-size: .85em; }
+.pagi a { color: var(--accent); }
+.pagi .jumps { display: flex; gap: .6rem; }
+.pagi .current { font-weight: bold; color: var(--text); }
+
+@media (max-width: 560px) {
+  .wrap { padding: 0 1rem; }
+  .blog-title { font-size: 18px; letter-spacing: 2px; }
+  .topbar { padding-top: 1.1rem; }
+}
+{CustomCSS}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    {block:IfIconImage}<img class="header-avatar" id="headerAvatar" src="{Icon}" alt="">{/block:IfIconImage}
+
+    <button class="blog-title" id="titleBtn">{text:Blog Title}</button>
+
+    <div class="identity-panel" id="identityPanel">
+      {block:ifBioName}<div class="identity-name">{text:Bio Name}</div>{/block:ifBioName}
+      {block:ifLocation}
+      <div class="identity-location">
+        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><path d="M128,16a88.1,88.1,0,0,0-88,88c0,75.3,80,132.17,83.41,134.55a8,8,0,0,0,9.18,0C136,236.17,216,179.3,216,104A88.1,88.1,0,0,0,128,16Zm0,56a32,32,0,1,1-32,32A32,32,0,0,1,128,72Z"/></svg>
+        <span>{text:Location}</span>
+      </div>
+      {/block:ifLocation}
+    </div>
+
+    <nav class="icon-row" aria-label="Blog navigation">
+      <a href="#" title="Search" id="searchToggle">
+        <svg viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+      </a>
+      <a href="{BlogURL}" title="Home">
+        <svg viewBox="0 0 256 256"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"/></svg>
+      </a>
+      {block:AskEnabled}
+      <a href="/ask" title="Ask">
+        <svg viewBox="0 0 256 256"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"/></svg>
+      </a>
+      {/block:AskEnabled}
+      <a href="/archive" title="Archive">
+        <svg viewBox="0 0 256 256"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40ZM216,200H40V88H216Z"/></svg>
+      </a>
+      <a href="https://mogollero.tumblr.com/" title="Photography" target="_blank">
+        <svg viewBox="0 0 256 256"><path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.71,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.43l13.63,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z"/></svg>
+      </a>
+      <a href="https://x.com/eneremit" title="X" target="_blank">
+        <svg viewBox="0 0 256 256"><path d="M214.75,211.71l-62.6-98.38,61.77-67.95a8,8,0,0,0-11.84-10.76L143.24,99.34,102.75,35.71A8,8,0,0,0,96,32H48a8,8,0,0,0-6.75,12.3l62.6,98.37-61.77,68a8,8,0,1,0,11.84,10.76l58.84-64.72,40.49,63.63A8,8,0,0,0,160,224h48a8,8,0,0,0,6.75-12.29ZM164.39,208,62.57,48h29L193.43,208Z"/></svg>
+      </a>
+      <a href="https://letterboxd.com/eneremit/" title="Letterboxd" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M8.224 14.352a4.447 4.447 0 0 1-3.775 2.092C1.992 16.444 0 14.454 0 12s1.992-4.444 4.45-4.444c1.592 0 2.988.836 3.774 2.092-.427.682-.673 1.488-.673 2.352s.246 1.67.673 2.352zM15.101 12c0-.864.247-1.67.674-2.352-.786-1.256-2.183-2.092-3.775-2.092s-2.989.836-3.775 2.092c.427.682.674 1.488.674 2.352s-.247 1.67-.674 2.352c.786 1.256 2.183 2.092 3.775 2.092s2.989-.836 3.775-2.092A4.42 4.42 0 0 1 15.1 12zm4.45-4.444a4.447 4.447 0 0 0-3.775 2.092c.427.682.673 1.488.673 2.352s-.246 1.67-.673 2.352a4.447 4.447 0 0 0 3.775 2.092C22.008 16.444 24 14.454 24 12s-1.992-4.444-4.45-4.444z"/></svg>
+      </a>
+      <a href="https://www.last.fm/user/eneremit" title="Last.fm" target="_blank">
+        <svg viewBox="0 0 256 256"><path d="M248,160a40,40,0,0,1-40,40H190.57a56.22,56.22,0,0,1-50.75-32.32l-30.14-64.6A40.15,40.15,0,0,0,73.43,80H64a40,40,0,0,0-40,40v24a40,40,0,0,0,40,40h8a32,32,0,0,0,29.34-19.2A8,8,0,1,1,116,171.2,48,48,0,0,1,72,200H64A56.06,56.06,0,0,1,8,144V120A56.06,56.06,0,0,1,64,64h9.43a56.22,56.22,0,0,1,50.75,32.32l30.14,64.6A40.15,40.15,0,0,0,190.57,184H208a24,24,0,0,0,0-48H188a36,36,0,0,1,0-72h20a32,32,0,0,1,32,32,8,8,0,0,1-16,0,16,16,0,0,0-16-16H188a20,20,0,0,0,0,40h20A40,40,0,0,1,248,160Z"/></svg>
+      </a>
+    </nav>
+
+    <div class="activity-widget" id="activityWidget">
+      <a class="activity-row" id="lfmLink" href="https://www.last.fm/user/eneremit" target="_blank" rel="noopener noreferrer">
+        <span class="activity-label" id="lfmLabel">Last Listened To:</span>
+        <span class="activity-value" id="lfmText">-</span>
+      </a>
+      <a class="activity-row" id="lbLink" href="https://letterboxd.com/eneremit/" target="_blank" rel="noopener noreferrer">
+        <span class="activity-label" id="lbLabel">Last Watched:</span>
+        <span class="activity-value" id="lbText">-</span>
+      </a>
+      <a class="activity-row" id="grLink" href="https://www.goodreads.com/user/show/138343303-julian" target="_blank" rel="noopener noreferrer">
+        <span class="activity-label" id="grLabel">Last Read:</span>
+        <span class="activity-value" id="grText">-</span>
+      </a>
+    </div>
+
+    <div class="search-panel" id="searchPanel">
+      <input type="text" id="searchInput" placeholder="search" autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap posts">
+  {block:Posts}
+  <article class="post" id="post-{PostID}">
+
+    {block:RebloggedFrom}
+      {block:Reblogs}
+        <div class="reblog-header">
+          <img src="{PortraitURL-64}" alt="{Username}">
+          {block:IsActive}<a class="user" href="{Permalink}" target="_blank">{Username}</a>{/block:IsActive}
+          {block:IsDeactivated}<span class="user">{Username}</span>{/block:IsDeactivated}
+        </div>
+      {/block:Reblogs}
+    {/block:RebloggedFrom}
+
+    {block:Answer}
+    <div class="ask-box">
+      <div class="asker">
+        <img src="{AskerPortraitURL-64}" alt="{Asker}">
+        <span>{Asker} asked</span>
+      </div>
+      <div>{Question}</div>
+    </div>
+    {block:Answerer}
+      <div class="reblog-header">
+        <img src="{AnswererPortraitURL-64}" alt="{Answerer}">
+        <span class="user">{Answerer}</span>
+      </div>
+    {/block:Answerer}
+    {/block:Answer}
+
+    {block:Quote}
+    <div class="quote-post">
+      <span class="type-label">quote</span>
+      <blockquote>{Quote}</blockquote>
+      {block:Source}<div class="source">{Source}</div>{/block:Source}
+    </div>
+    {/block:Quote}
+
+    {block:Chat}
+    <div class="caption">
+      <span class="type-label">chat</span>
+      {block:Lines}<p>{block:Label}<strong>{Label}</strong>{/block:Label} {Line}</p>{/block:Lines}
+    </div>
+    {/block:Chat}
+
+    {block:link}
+    <div class="caption">
+      <span class="type-label">link</span>
+      <a href="{URL}" target="_blank"><strong>{Name}</strong></a>
+      {block:Description}<div>{Description}</div>{/block:Description}
+    </div>
+    {/block:link}
+
+    {block:Audio}
+    <span class="type-label">audio {block:TrackName}— {TrackName}{/block:TrackName}{block:Artist} by {Artist}{/block:Artist}</span>
+    {block:AudioPlayer}{AudioPlayer}{/block:AudioPlayer}
+    {/block:Audio}
+
+    {block:Video}
+    <div class="video-post">{Video-500}</div>
+    {/block:Video}
+
+    <div class="caption">
+      {block:Text}
+        {block:Title}<h1>{Title}</h1>{/block:Title}
+        {Body}
+      {/block:Text}
+      {block:NotReblog}{block:Caption}{Caption}{/block:Caption}{/block:NotReblog}
+      {block:RebloggedFrom}{block:Reblogs}{block:Quote}{block:NotReblog}{Body}{/block:NotReblog}{/block:Quote}{/block:Reblogs}{/block:RebloggedFrom}
+    </div>
+
+    <footer class="post-footer">
+      <a class="date" href="{Permalink}">{ShortMonth} {DayOfMonthWithZero}</a>
+      <a class="notecount-link" href="{Permalink}">{NoteCountWithLabel}</a>
+      {block:HasTags}
+      <div class="post-tags">
+        {block:Tags}<a href="{TagURL}">#{Tag}</a>{/block:Tags}
+      </div>
+      {/block:HasTags}
+    </footer>
+
+    {block:PermalinkPage}
+      {block:PostNotes}
+      <div class="notes-list">
+        <span class="type-label">{NoteCountWithLabel}</span>
+        <ol>{PostNotes}</ol>
+      </div>
+      {/block:PostNotes}
+    {/block:PermalinkPage}
+  </article>
+  {/block:Posts}
+
+  {block:Pagination}
+  <nav class="pagi" aria-label="Pagination">
+    {block:PreviousPage}<a href="{PreviousPage}">← prev</a>{/block:PreviousPage}
+    <div class="jumps">
+      {block:JumpPagination length="5"}
+        {block:CurrentPage}<span class="current">{PageNumber}</span>{/block:CurrentPage}
+        {block:JumpPage}<a href="{URL}">{PageNumber}</a>{/block:JumpPage}
+      {/block:JumpPagination}
+    </div>
+    {block:NextPage}<a href="{NextPage}">next →</a>{/block:NextPage}
+  </nav>
+  {/block:Pagination}
+</main>
+
+<script>
+// ===== title click reveals identity panel (name + location) =====
+(function(){
+  function ready(fn){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",fn); else fn(); }
+  ready(function(){
+    var btn = document.getElementById("titleBtn");
+    var panel = document.getElementById("identityPanel");
+    if (!btn || !panel) return;
+    btn.addEventListener("click", function(){ panel.classList.toggle("open"); });
+  });
+})();
+
+// ===== search icon reveals the search panel =====
+(function(){
+  function ready(fn){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",fn); else fn(); }
+  ready(function(){
+    var toggle = document.getElementById("searchToggle");
+    var panel = document.getElementById("searchPanel");
+    var input = document.getElementById("searchInput");
+    if (!toggle || !panel) return;
+    toggle.addEventListener("click", function(e){
+      e.preventDefault();
+      panel.classList.toggle("open");
+      if (panel.classList.contains("open") && input) input.focus();
+    });
+  });
+})();
+
+// ===== avatar: hide gracefully if the image is empty or fails to load =====
+(function(){
+  function ready(fn){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",fn); else fn(); }
+  ready(function(){
+    var img = document.getElementById("headerAvatar");
+    if (!img) return;
+    if (!img.getAttribute("src")) { img.style.display = "none"; return; }
+    img.addEventListener("error", function(){ img.style.display = "none"; });
+  });
+})();
+
+// ===== social link search — matches only against the list below, not blog posts =====
+// Reusable mechanism. The list itself is specific to whichever blog this is
+// installed on — swap the array below when reusing this theme elsewhere.
+(function(){
+  "use strict";
+  var directory = [
+    {label:"Last.fm", url:"https://www.last.fm/user/eneremit", tags:"lastfm music scrobble"},
+    {label:"Apple Music", url:"https://music.apple.com/profile/eneremit", tags:"applemusic music apple"},
+    {label:"Strava", url:"https://strava.app.link/rjUvQDrUO4b", tags:"running fitness"},
+    {label:"Serializd", url:"https://srlzd.com/u/eneremit", tags:"tv shows"},
+    {label:"RYM (Rate Your Music)", url:"https://rateyourmusic.com/~eneremit", tags:"rym rateyourmusic music"},
+    {label:"Musicboard", url:"https://musicboard.app/eneremit?rel=copy", tags:"music"},
+    {label:"AOTY (Album Of The Year)", url:"https://www.albumoftheyear.org/user/eneremit/#", tags:"aoty albumoftheyear music"},
+    {label:"Airbuds", url:"https://i.airbuds.fm/eneremit/40LUzVuzP3", tags:"music spotify stats"},
+    {label:"Stats.fm", url:"https://stats.fm/invite/eneremit", tags:"statsfm music spotify stats"},
+    {label:"Discogs", url:"https://www.discogs.com/user/eneremit", tags:"vinyl records music"},
+    {label:"Beli", url:"https://beliapp.co/app/eneremit", tags:"food restaurants"},
+    {label:"Blu-ray.com", url:"https://www.blu-ray.com/community/profile.php?u=996279", tags:"bluray movies physical media"},
+    {label:"Trakt", url:"https://app.trakt.tv/profile/eneremit", tags:"tv movies tracking"},
+    {label:"Goodreads", url:"https://www.goodreads.com/user/show/138343303-julian", tags:"books reading"},
+    {label:"Fable", url:"https://fable.co/fabler/julian-585019491620?referralID=IauSlIaWZ4", tags:"books reading"},
+    {label:"YouTube", url:"https://youtube.com/@eneremio", tags:"video yt"},
+    {label:"TikTok", url:"https://www.tiktok.com/@eneremio", tags:"tiktok"},
+    {label:"Plex", url:"https://l.plex.tv/zJ7FfGr", tags:"movies tv media server"},
+    {label:"Mubi", url:"https://mubi.com/en/users/16232901", tags:"movies film"},
+    {label:"WhatsApp", url:"https://wa.me/qr/OWAAKIQIBB3WE1", tags:"wa message"},
+    {label:"Telegram", url:"https://t.me/eneremio", tags:"message"},
+    {label:"PayPal", url:"https://www.paypal.com/paypalme/chembofio", tags:"tip donate payment"},
+    {label:"Instagram", url:"https://www.instagram.com/mogollero/", tags:"instagram ig"},
+    {label:"Secondary Instagram", url:"https://www.instagram.com/eneremit/", tags:"instagram ig secondary alt"},
+    {label:"Reddit", url:"https://www.reddit.com/u/InfamousString3984/", tags:"reddit"},
+    {label:"Pinterest", url:"https://pin.it/36Y5lYw4J", tags:"pinterest"},
+    {label:"Bluesky", url:"https://bsky.app/profile/eneremit.com", tags:"bsky"},
+    {label:"Substack", url:"https://substack.com/@eneremit", tags:"substack newsletter writing"},
+    {label:"Vero", url:"https://vero.co/chembofios", tags:"vero"},
+    {label:"Threads", url:"https://www.threads.com/@mogollero", tags:"threads"},
+    {label:"Secondary Threads", url:"https://www.threads.com/@eneremit", tags:"threads secondary alt"},
+    {label:"Mastodon", url:"https://mastodon.social/@eneremit", tags:"mastodon"},
+    {label:"BeReal", url:"https://bere.al/eneremit", tags:"bereal be real"},
+    {label:"Spotify", url:"https://open.spotify.com/user/jorgejulianrdz", tags:"spotify music"},
+    {label:"Tidal", url:"https://tidal.com/@eneremit", tags:"tidal music"},
+    {label:"SoundCloud", url:"https://on.soundcloud.com/YEJYtgpwyqZglGOqxW", tags:"soundcloud music"},
+    {label:"Snapchat", url:"https://snapchat.com/t/yIEOyLqS", tags:"snapchat snap"},
+    {label:"Facebook", url:"https://www.facebook.com/share/1Bybg5PtJV/", tags:"facebook fb"},
+    {label:"Wishlist", url:"https://www.amazon.com/hz/wishlist/ls/1PJMGM1Z9XQ5", tags:"wishlist amazon"},
+    {label:"Co-Star", url:"https://www.costarastrology.com/eneremit", tags:"costar astrology"},
+    {label:"VSCO", url:"https://vs.co/byc2s7rz", tags:"vsco photo"},
+    {label:"Discord", url:"https://discord.com/users/883779234101866556", tags:"discord"},
+    {label:"Millimetre", url:"https://millimetre.app/user/eneremit", tags:"millimetre film camera"},
+    {label:"SpaceHey", url:"https://spacehey.com/eneremit", tags:"spacehey myspace"},
+    {label:"Venmo", url:"https://venmo.com/u/eneremit", tags:"venmo payment tip"},
+    {label:"Tumblr", url:"https://eneremio.tumblr.com/", tags:"tumblr blog"},
+    {label:"StoryGraph", url:"https://app.thestorygraph.com/profile/eneremit", tags:"storygraph books reading"},
+    {label:"Letterboxd", url:"https://boxd.it/2wBWz", tags:"letterboxd movies film"},
+    {label:"eneremit.com", url:"https://eneremit.com", tags:"landing page website links"}
+  ];
+  directory.forEach(function(e){ e.haystack=(e.label+" "+e.tags).toLowerCase(); });
+
+  function ready(fn){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",fn); else fn(); }
+  ready(function(){
+    var input=document.getElementById("searchInput");
+    var box=document.getElementById("searchResults");
+    if(!input||!box) return;
+    function render(q){
+      q=q.trim().toLowerCase();
+      if(!q){ box.classList.remove("open"); box.innerHTML=""; return; }
+      var matches=directory.filter(function(e){ return e.haystack.split(/[^a-z0-9]+/).some(function(t){ return t && t.indexOf(q)===0; }); });
+      if(!matches.length){ box.classList.remove("open"); box.innerHTML=""; return; }
+      box.innerHTML=matches.map(function(e){ return '<a href="'+e.url+'" target="_blank" rel="noopener">'+e.label+'</a>'; }).join("");
+      box.classList.add("open");
+    }
+    input.addEventListener("input", function(){ render(input.value); });
+    input.addEventListener("focus", function(){ if(input.value) render(input.value); });
+    document.addEventListener("click", function(e){ if(!box.contains(e.target) && e.target!==input) box.classList.remove("open"); });
+  });
+})();
+
+// ===== activity widget (Last.fm / Letterboxd / Goodreads) =====
+(function(){
+  "use strict";
+  var ENDPOINT="https://eneremit-widget.eneremit.workers.dev/json";
+  function safe(s){ return (s==null?"":String(s)).trim(); }
+  function bad(t){ t=safe(t); return !t||t==="-"||t==="—"; }
+  function ready(fn){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",fn); else fn(); }
+  ready(function(){
+    var el={
+      lfLabel:document.getElementById("lfmLabel"), lfText:document.getElementById("lfmText"), lfLink:document.getElementById("lfmLink"),
+      lbLabel:document.getElementById("lbLabel"), lbText:document.getElementById("lbText"), lbLink:document.getElementById("lbLink"),
+      grLabel:document.getElementById("grLabel"), grText:document.getElementById("grText"), grLink:document.getElementById("grLink")
+    };
+    if (!el.lfText) return;
+    async function refresh(){
+      try{
+        var res=await fetch(ENDPOINT,{cache:"no-store",credentials:"omit"});
+        if(!res.ok) return;
+        var data=await res.json();
+        if(data.lastfm && !bad(data.lastfm.text)){ el.lfLabel.textContent=safe(data.lastfm.label)||el.lfLabel.textContent; el.lfText.textContent=data.lastfm.text; el.lfLink.href=data.lastfm.itemUrl||data.lastfm.url||el.lfLink.href; }
+        if(data.letterboxd && !bad(data.letterboxd.text)){ el.lbLabel.textContent=safe(data.letterboxd.label)||el.lbLabel.textContent; el.lbText.textContent=data.letterboxd.text; el.lbLink.href=data.letterboxd.itemUrl||data.letterboxd.url||el.lbLink.href; }
+        if(data.goodreads && !bad(data.goodreads.text)){ el.grLabel.textContent=safe(data.goodreads.label)||el.grLabel.textContent; el.grText.textContent=data.goodreads.text; el.grLink.href=data.goodreads.itemUrl||data.goodreads.url||el.grLink.href; }
+      }catch(e){}
+    }
+    refresh();
+    setInterval(refresh, 120000);
+  });
+})();
+
+// ===== NPF photo/photoset grouping =====
+// Reads each post's own NPF JSON to detect image posts and group consecutive
+// photo rows into a gallery wrapper — the standard technique every custom
+// Tumblr theme needs for photosets, implemented fresh here.
+(function(){
+  "use strict";
+  var postsData = [];
+  {block:Posts}
+    postsData.push({ id: {JSPostId}, npf: JSON.parse({JSNPF}) });
+  {/block:Posts}
+
+  function ready(fn){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",fn); else fn(); }
+  ready(function(){
+    postsData.forEach(function(post){
+      var article = document.getElementById("post-" + post.id);
+      if (!article) return;
+      var npf = post.npf;
+      var firstType = npf?.trail?.[0]?.content?.[0]?.type ?? npf?.content?.[0]?.type;
+      if (firstType !== "image") return;
+      var rows = article.querySelectorAll(".npf_row");
+      if (!rows.length) return;
+      var caption = article.querySelector(".caption");
+      if (!caption) return;
+      var gallery = document.createElement("div");
+      gallery.className = "npf-photos";
+      rows.forEach(function(row){ gallery.appendChild(row); });
+      caption.prepend(gallery);
+    });
+  });
+})();
+</script>
+</body>
+</html>
